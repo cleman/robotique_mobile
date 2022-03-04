@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 def read():
-    file = open("/home/prof/lebhou_ws/src/maze/script/integer","r")
-    data = file.readlines()
+    file = open("/home/prof/lebhou_ws/src/maze/script/integer.txt","w")
+    file.write("54451")
     file.close()
-    return data[0]
 
-while 1:
-    print(read())
+read()

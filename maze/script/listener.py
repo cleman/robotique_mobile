@@ -4,17 +4,19 @@ from sensor_msgs.msg import LaserScan, PointCloud2
 import laser_geometry.laser_geometry as lg
 import sensor_msgs.point_cloud2 as pc2
 
-#global pub
+global angle
+angle = 0
 lp = lg.LaserProjection()
 
 def writ(data):
-    file = open("integer","w")
+    file = open("/home/prof/lebhou_ws/src/maze/script/integer.txt","w")
     file.write(data)
     file.close()
+    #print("message ecrit")
 
 def callback(data):
-    cone = 30
-    angle = 270
+    global angle
+    cone = 45
     pcl = lp.projectLaser(data)
 
     point_generator = pc2.read_points(pcl)
@@ -34,20 +36,45 @@ def callback(data):
         point = point.split(",")
         point[4] = int(point[4])
         point[3] = float(point[3])
-        if (point[4] >= angle-cone and point[4] <= angle+cone):
-            print(point)
+        if ((point[4]+360) >= (angle-cone+360) and (point[4]+360) <= (angle+cone+360)):
+            #print(point)
             total += point[3]
             nbr += 1
     distance = total/nbr
-    print(distance)
-    if (distance >= 6800 and distance <= 9700):
-        print("je vois le mur")
-    else:
-        print("trop loin ou trop proche")
+    #print(distance)
+#    if (distance >= 6800 and distance <= 9700):
+#        print("je vois le mur")
+#    else:
+#        print("trop loin ou trop proche")
 
-    writ(distance)
+    
+    #writ(str(distance))
 
-    # pause = input()
+    print(angle)    
+    if (angle == 0 and distance > 5000):
+        mode = 1        #tourne
+        angle = 0
+    elif (angle == 0 and distance < 5000):
+        mode = 2        #avance
+        angle = 270
+    elif (angle == 270 and distance > 10000):
+        mode = 3        #eloigne du mur
+        angle = 0
+    elif (angle == 270 and distance < 6500 and distance > 5000):
+        mode = 4        #vers le mur
+        angle = 0
+    elif (angle == 270 and distance <= 5000):
+        mode = 5
+        angle = 0
+    elif (angle == 270 and distance >= 6500 and distance <= 10000):
+        mode = 2        #continue droit
+        angle = 0
+    print("sortie: ", angle)
+    
+    writ(str(mode))
+    
+
+    #pause = input()
     
 def listener():
 
