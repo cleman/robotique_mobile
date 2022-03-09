@@ -109,7 +109,7 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-catkin_install_python(PROGRAMS script/talker.py script/listener.py script/list_talker.py
+catkin_install_python(PROGRAMS script/talker.py script/listener.py script/list_talker.py script/listener2.py script/talker2.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

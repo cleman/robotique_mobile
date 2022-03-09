@@ -4,8 +4,11 @@ from sensor_msgs.msg import LaserScan, PointCloud2
 import laser_geometry.laser_geometry as lg
 import sensor_msgs.point_cloud2 as pc2
 
-global angle
+global angle,cmin,cmax,dmax
 angle = 0
+cmin = 7000
+cmax = 9000
+dmax = 6000
 lp = lg.LaserProjection()
 
 def writ(data):
@@ -15,7 +18,7 @@ def writ(data):
     #print("message ecrit")
 
 def callback(data):
-    global angle
+    global angle,cmin,cmax,dmax
     cone = 45
     pcl = lp.projectLaser(data)
 
@@ -51,6 +54,7 @@ def callback(data):
     #writ(str(distance))
 
     print(angle)    
+    '''
     if (angle == 0 and distance > 5000):
         mode = 1        #tourne
         angle = 0
@@ -69,7 +73,30 @@ def callback(data):
     elif (angle == 270 and distance >= 6500 and distance <= 10000):
         mode = 2        #continue droit
         angle = 0
-    print("sortie: ", angle)
+
+    '''
+    if (angle == 270):
+        if (distance >= cmin and distance <= cmax):
+            mode = 1        #Avance
+            angle = 0
+        elif (distance > cmin):
+            mode = 2        #Toune gauche peu
+            angle = 0
+        else:
+            mode = 3        #Tourne droite peu
+            angle = 0
+    elif (angle == 0):
+        if (distance > dmax):
+            mode = 4        #Tourne gauche beaucoup
+            angle = 0
+        else:
+            mode = 1        #Avance
+            angle = 270
+
+    print("angle: ", angle)
+    print("mode", mode)
+    print("intensite", distance)
+    print()
     
     writ(str(mode))
     
