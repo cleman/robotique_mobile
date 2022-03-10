@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from re import M
+from xml.sax.handler import feature_namespace_prefixes
 import rospy
 from std_msgs.msg import Int32
 from sensor_msgs.msg import LaserScan, PointCloud2
@@ -9,11 +11,11 @@ from numpy import mean,abs
 
 pub_mode = rospy.Publisher('/mode',Int32,queue_size = 1)
 
-global angle,cmin,cmax,dmax
-angle = 0
-cmin = 7000
-cmax = 9000
-dmax = 6000
+global suivi,mur,ouvert,ferme
+suivi = 0
+mur = False
+ouvert = False
+ferme = False
 lp = lg.LaserProjection()
 
 def writ(data):
@@ -23,7 +25,7 @@ def writ(data):
     #print("message ecrit")
 
 def callback(data):
-    global angle,cmin,cmax,dmax
+    global suivi,mur,ouvert,ferme
     cone = 45
     pcl = lp.projectLaser(data)
 
@@ -35,13 +37,9 @@ def callback(data):
   #  pub.publish(pcl)
     
     # we can access a generator in a loop
-    total = 0
-    nbr = 0
 
-    angle = 90
-    cone = 20
-    a0 = [[],[]]
-    a90 = [[],[],[],[],[],[],[],[]]
+    mesure = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+    mesure_moy = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
     for point in point_generator:
 
         x = point[0]
@@ -49,50 +47,47 @@ def callback(data):
         angle_mes = int(point[4])
         distance = sqrt(x**2 + y**2)*100
 
-        #Angle devant
-        if (angle == 0):
-            if (angle_mes > 360-cone and angle_mes <= 360):
-                a0[1].append(distance)                          #droite
-            elif (angle_mes >= 0 and angle_mes < cone):
-                a0[0].append(distance)                          #gauche
-
-        #Angle cote
-        if (angle == 90):
-            if (angle_mes >=0 and angle_mes < cone):
-                a90[7].append
-            elif (angle_mes >= 220):
-                a90[int((angle_mes-220)/20)].append(distance)
+        mesure[int(angle_mes/20)].append(distance)
     
-#    a00m = mean(a0[0])
-#    a01m = mean(a0[1])
+    for i in range (18):
+        mesure[i].sort()
+        mesure_moy[i] = mean(mesure[i])
 
-    '''
-    a0m = [0]*2
-    for i in range(2):
-        a0m[i] = mean(a0[i])
- #   print(a00m,a01m)
-    if (abs(a0m[0] - a0m[1]) > 1):
-        if (a0[0] > a0[1]):
-            mode = 1
-        else:
+    print(mesure_moy)
+
+    dif34 = abs(mesure_moy[3]-mesure_moy[4])
+    dif45 = abs(mesure_moy[4]-mesure_moy[5])
+
+    if ((mesure_moy[4] > 15 and mesure_moy[4] < 20)):       #Suivi mur
+        if (mesure_moy[3] < mesure_moy[4]):
             mode = 2
-
-    '''
+        elif (mesure_moy[5] < mesure_moy[4]):
+            mode = 3
+        else:
+            mode = 1
     
-    a90m = [0]*8
-    print(mean(a90[0]))
-    print(mean(a90[1]))
-    for i in range (8):
-        a90m[i] = mean(a90[i])
-
-    a90m2 = a90m.sort()
-#    print(a90m,a90m2)
-    if (a90m2[0] != a90m[3] and a90m2[0] != a90m[4]):
-        mode = 1
+    else:
+        if (mesure_moy[4] <= 15):
+            mode = 2
+        elif (mesure_moy[3] > (mesure_moy[4])):
+            mode = 3
+        else:
+            mode = 1
     
+    if (not mesure[4]):                                     #trop proche mur (valeur non lisible)
+        mode = 2
 
+    if (mesure_moy[0] < 25 or mesure_moy[17] < 25):         #angle ferme
+        mode = 4
 
-        pub_mode.publish(int(mode))
+    if (mesure_moy[3] > mesure_moy[4]+20 or (mesure_moy[5] > mesure_moy[4]+20 and mesure_moy[3] > 20)):
+        mode = 5
+    
+    
+    
+    
+    print(mode)
+    pub_mode.publish(int(mode))
 
 
 def listener():

@@ -12,10 +12,25 @@ def move(data):
 
     print(data.data)
     mode = data.data
+
     if (mode == 1):
-        msg.angular.z = -0.3
-    else:
-        msg.angular.z = 0.3
+        msg.linear.x = 0.05
+    elif (mode == 2):
+        msg.linear.x = 0.05
+        msg.angular.z = -0.1
+    elif (mode == 3):
+        msg.linear.x = 0.05
+        msg.angular.z = 0.1
+    elif (mode == 4):
+        msg.linear.x = 0.03
+        msg.angular.z = -0.6
+    elif (mode == 5):
+        msg.linear.x = 0.03
+        msg.angular.z = 0.8
+    elif (mode == 6):
+        msg.angular.z = -1
+    elif (mode == 7):
+        msg.angular.z = 1
 
     pub.publish(msg)
     rate.sleep()

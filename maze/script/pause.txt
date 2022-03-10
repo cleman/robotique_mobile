@@ -1,0 +1,50 @@
+listener2
+    diff34 = mesure_moy[3]-mesure_moy[4]
+        diff45 = mesure_moy[5]-mesure_moy[4]
+
+        if (( mesure_moy[3] < (mesure_moy[4]+30) ) and cond1 and (mesure_moy[0] > 25 or mesure_moy[17] > 25)):     #Encore un mur sur tout le cote
+            if (mesure_moy[4] >= 15 and mesure_moy[4] <= 20):        #Pas trop loin du mur
+                if (abs(mesure_moy[3]-mesure_moy[5]) < 2): #parrallele au mur
+                    mode = 3        #Avance
+                    
+                else:
+                    if (mesure_moy[3] < mesure_moy[4]):
+                        mode = 1        #Tourne droite un peu
+                    else:
+                        mode = 2        #Tourne gauche un peu
+            else:                           #Trop loin ou trop prochedu mur
+                if (mesure_moy[4] > 20):     #Trop loin
+                    mode = 5            #Tourne gauche + avance
+                else:                       #Trop proche
+                    mode = 4            #Tourne droite + avance
+
+        else:           #Coin ouvert
+            if (mesure_moy[0] < 25 and mesure_moy[17] < 25):    #mur devant
+                mode = 7    #Tourne droite fort
+            else:
+                if (mesure_moy[3] > 25):
+                    mode = 6    #Avance + tourne gauche fort
+                    cond1 == False
+                else:
+                    cond1 = True
+        print(mode)
+
+talker2
+    if (mode == 1):
+        msg.angular.z = -0.3
+    elif (mode == 2):
+        msg.angular.z = 0.3
+    elif (mode == 3):
+        msg.linear.x = 0.075
+    elif (mode == 4):
+        msg.linear.x = 0.05
+        msg.angular.z = -0.1
+    elif (mode == 5):
+        msg.linear.x = 0.05
+        msg.angular.z = 0.1
+    elif (mode == 6):
+        msg.linear.x = 0.1
+        msg.angular.z = 0.6
+    elif (mode == 7):
+        msg.linear.x = 0
+        msg.angular.z = -1.2
