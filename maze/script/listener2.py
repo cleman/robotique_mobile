@@ -41,7 +41,7 @@ def callback(data):
     angle = 90
     cone = 20
     a0 = [[],[]]
-    a90 = [[]]*8
+    a90 = [[],[],[],[],[],[],[],[]]
     for point in point_generator:
 
         x = point[0]
